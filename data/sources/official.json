@@ -1,0 +1,43 @@
+[
+  {
+    "id": "nyu-creative-computing",
+    "title": "IMNY-UT 101 · Creative Computing",
+    "url": "https://bulletins.nyu.edu/courses/imny_ut/",
+    "domain": "bulletins.nyu.edu",
+    "contentExcerpt": "IMNY-UT 101 Creative Computing (4 Credits)",
+    "summary": "NYU lists Creative Computing as a 4-credit course. The catalog description combines physical computing with Arduino and programming with p5, including project-based exploration.",
+    "retrievedAt": "2026-11-06T04:08:00Z",
+    "applicableBulletinYear": "2026–2027",
+    "sourceType": "official_course_catalog",
+    "verificationStatus": "verified_excerpt",
+    "keywords": [
+      "creative computing",
+      "imny-ut 101",
+      "真实课程",
+      "official course"
+    ]
+  },
+  {
+    "id": "nyu-ima-overview",
+    "title": "Interactive Media Arts (BFA) · NYU Bulletins",
+    "url": "https://bulletins.nyu.edu/undergraduate/arts/programs/interactive-media-arts-bfa/",
+    "domain": "bulletins.nyu.edu",
+    "contentExcerpt": "The IMA program offers a rigorous and exploratory course of study that teaches students fluency in many forms of digital interactivity",
+    "summary": "The official program overview describes digital interactivity alongside arts and liberal arts study.",
+    "retrievedAt": "2026-11-06T03:56:00Z",
+    "applicableBulletinYear": "2026–2027",
+    "sourceType": "official_bulletin",
+    "verificationStatus": "verified_excerpt",
+    "keywords": [
+      "ima",
+      "program",
+      "overview",
+      "official",
+      "nyu",
+      "bfa",
+      "课程来源",
+      "官方",
+      "专业"
+    ]
+  }
+]
