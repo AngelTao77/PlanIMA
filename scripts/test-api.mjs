@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+const base=process.env.PLANIMA_TEST_URL||'http://127.0.0.1:3000';
+let cookie='';let passed=0;
+async function request(action,expected=200){const response=await fetch(`${base}/api/action`,{method:action?'POST':'GET',headers:{cookie,'Content-Type':'application/json',origin:base},...(action?{body:JSON.stringify(action)}:{})});if(response.headers.get('set-cookie'))cookie=response.headers.get('set-cookie').split(';')[0];const data=await response.json();assert.equal(response.status,expected,JSON.stringify(data));return data;}
+const ws=s=>s.workspaces[s.active],version=s=>ws(s).versions.at(-1);
+let s=await request();assert.equal(s.active,'junior');passed++;
+const original=version(s).id;
+s=await request({type:'propose',courseId:'c15',termId:'t6'});assert.equal(ws(s).proposal.validation.status,'invalid');assert.equal(version(s).id,original);await request({type:'apply',id:ws(s).proposal.id,baseVersionId:original},400);passed++;
+s=await request({type:'reject'});assert.equal(version(s).id,original);passed++;
+s=await request({type:'propose',courseId:'c12',termId:'t5'});const proposal=ws(s).proposal;assert.notEqual(proposal.validation.status,'invalid');s=await request({type:'apply',id:proposal.id,baseVersionId:original});assert.equal(version(s).number,2);assert.equal(version(s).assignments.find(a=>a.courseId==='c12').termId,'t5');s=await request();assert.equal(version(s).number,2);await request({type:'apply',id:proposal.id,baseVersionId:original},400);passed++;
+s=await request({type:'restore',id:original});assert.equal(version(s).number,2);assert.equal(ws(s).proposal.diff.find(d=>d.courseId==='c12').to,'t6');passed++;
+s=await request({type:'generate'});assert.equal(ws(s).proposal.assignments.length,7);assert.equal(ws(s).proposal.validation.issues.some(i=>i.severity==='error'||i.code==='missing'),false);passed++;
+s=await request({type:'chat',text:'Move this course to Spring 2027',courseId:'c12',termId:'t6'});assert.equal(ws(s).proposal.status,'pending');assert.equal(version(s).number,2);passed++;
+s=await request({type:'chat',text:'Tell me about IMNY-UT 101'});assert.equal(ws(s).messages.at(-1).sourceIds[0],'nyu-creative-computing');s=await request({type:'chat',text:'What is the GPA minimum?'});assert.deepEqual(ws(s).messages.at(-1).sourceIds,[]);passed++;
+s=await request({type:'comment',text:'Please discuss studio workload.',targetId:'t5',role:'advisor'});assert.equal(ws(s).comments.at(-1).targetId,'t5');passed++;
+s=await request({type:'switch',id:'transfer'});assert.equal(ws(s).messages.length,0);s=await request({type:'switch',id:'junior'});assert.ok(ws(s).comments.length);passed++;
+await request({type:'profile',name:'Alex',bulletinYear:'2024–2025',target:'t0',maxCredits:12,summer:false,jterm:false},400);passed++;
+const unknown=await fetch(`${base}/api/sources?q=seat%20availability`).then(r=>r.json());assert.equal(unknown.sources.length,0);passed++;
+const cross=await fetch(`${base}/api/action`,{method:'POST',headers:{cookie,origin:'https://untrusted.example','Content-Type':'application/json'},body:JSON.stringify({type:'generate'})});assert.equal(cross.status,403);passed++;
+s=await request({type:'mapRequirement',courseId:'c1',requirementId:'distribution-3'});assert.equal(ws(s).profile.requirementMappings.c1,'distribution-3');s=await request();assert.equal(ws(s).profile.requirementMappings.c1,'distribution-3');passed++;
+await request({type:'mapRequirement',courseId:'c1',requirementId:'computing'},400);await request({type:'mapRequirement',courseId:'c1',requirementId:'not-a-category'},400);passed++;
+s=await request({type:'mapRequirement',courseId:'c1',requirementId:'free-electives'});assert.equal(ws(s).profile.requirementMappings.c1,'free-electives');s=await request({type:'mapRequirement',courseId:'c1',requirementId:''});assert.equal(ws(s).profile.requirementMappings.c1,undefined);passed++;
+console.log(`Passed ${passed} API integration scenarios (isolated demo cookie).`);
